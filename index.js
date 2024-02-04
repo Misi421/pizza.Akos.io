@@ -45,14 +45,22 @@ function draw() {
     ctx.drawImage(foodImage, food.x * boxSize, food.y * boxSize, boxSize, boxSize);
 }
 
-function move() {
-    const head = { x: snake[0].x + dx, y: snake[0].y + dy, direction: getDirection(dx, dy) };
-    snake.unshift(head);
+let moveCounter = 0;
+const moveInterval = 5;
 
-    if (head.x === food.x && head.y === food.y) {
-        generateFood();
-    } else {
-        snake.pop();
+function move() {
+    moveCounter++;
+    
+    if (moveCounter >= moveInterval) {
+        const head = { x: snake[0].x + dx, y: snake[0].y + dy, direction: getDirection(dx, dy) };
+        snake.unshift(head);
+
+        if (head.x === food.x && head.y === food.y) {
+            generateFood();
+        } else {
+            snake.pop();
+            moveCounter = 3;
+        }
     }
 }
 
@@ -78,7 +86,6 @@ function getDirection(dx, dy) {
 }
 
 function generateFood() {
-    // Generarea aleatoare a poziției pizzei
     food = {
         x: Math.floor(Math.random() * (canvas.width / boxSize)),
         y: Math.floor(Math.random() * (canvas.height / boxSize))
@@ -97,24 +104,18 @@ function startGame() {
     dy = 0;
     generateFood();
 
-    // Afișează elementul p pentru numărătoarea inversă
     const countdownElement = document.getElementById("countdown");
     countdownElement.style.display = "block";
 
-    // Afișează numărătoarea inversă și pornește jocul după aceea
     countdown(3, function () {
         gameInterval = setInterval(update, 100);
 
-        // Ascunde butonul după ce a fost apăsat
         document.getElementById("startButton").style.display = "none";
 
-        // Ascunde elementul p după ce jocul a început
         countdownElement.style.display = "none";
 
-        // Elimină ascultătorul de evenimente de la buton după ce a fost apăsat
         document.getElementById("startButton").removeEventListener("click", startGame);
 
-        // Adaugă un nou ascultător de evenimente pentru tastatură
         document.addEventListener("keydown", handleKeyPress);
     });
 }
@@ -125,12 +126,10 @@ function countdown(seconds, callback) {
 
     const countdownInterval = setInterval(function () {
         if (currentSecond > 0) {
-            // Afișează numărătoarea inversă în elementul p
             countdownElement.textContent = "Akos va incepe sa manance in " + currentSecond + " secunde.";
             currentSecond--;
         } else {
             clearInterval(countdownInterval);
-            // Ascunde elementul p după ce numărătoarea inversă s-a terminat
             countdownElement.style.display = "none";
             callback();
         }
@@ -166,5 +165,4 @@ function handleKeyPress(event) {
     }
 }
 
-// Adaugă ascultătorul de evenimente la buton
 document.getElementById("startButton").addEventListener("click", startGame);
